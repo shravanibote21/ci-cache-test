@@ -1,9 +1,7 @@
 name: CI Cache Test
 
 on:
-  push:
-    branches:
-      - main
+  pull_request:
 
 jobs:
   build:
@@ -14,11 +12,16 @@ jobs:
 
       - name: Cache dependencies
         uses: actions/cache@v4
-        id: cache-step
+        id: cache-pip
         with:
           path: ~/.cache/pip
-          key: cache-24d8110
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-      - name: prime-cache-24d8110
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Test cache
         run: |
-          echo "Cache hit: ${{ steps.cache-step.outputs.cache-hit }}"
+          echo "Cache hit: ${{ steps.cache-pip.outputs.cache-hit }}"
